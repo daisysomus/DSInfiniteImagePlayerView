@@ -13,6 +13,7 @@
 		E25033331C84224D0083C97B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E25033311C84224D0083C97B /* Main.storyboard */; };
 		E25033351C84224D0083C97B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E25033341C84224D0083C97B /* Assets.xcassets */; };
 		E25033381C84224D0083C97B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E25033361C84224D0083C97B /* LaunchScreen.storyboard */; };
+		E25033421C84227D0083C97B /* DSInfiniteImagePlayingView.m in Sources */ = {isa = PBXBuildFile; fileRef = E25033411C84227D0083C97B /* DSInfiniteImagePlayingView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,8 @@
 		E25033341C84224D0083C97B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E25033371C84224D0083C97B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E25033391C84224D0083C97B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E25033401C84227D0083C97B /* DSInfiniteImagePlayingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DSInfiniteImagePlayingView.h; sourceTree = "<group>"; };
+		E25033411C84227D0083C97B /* DSInfiniteImagePlayingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DSInfiniteImagePlayingView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +61,7 @@
 		E25033271C84224D0083C97B /* DSInfiniteImagePlayingView */ = {
 			isa = PBXGroup;
 			children = (
+				E250333F1C84226C0083C97B /* DSInfiniteImagePlayingView */,
 				E250332B1C84224D0083C97B /* AppDelegate.h */,
 				E250332C1C84224D0083C97B /* AppDelegate.m */,
 				E250332E1C84224D0083C97B /* ViewController.h */,
@@ -77,6 +81,15 @@
 				E25033291C84224D0083C97B /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		E250333F1C84226C0083C97B /* DSInfiniteImagePlayingView */ = {
+			isa = PBXGroup;
+			children = (
+				E25033401C84227D0083C97B /* DSInfiniteImagePlayingView.h */,
+				E25033411C84227D0083C97B /* DSInfiniteImagePlayingView.m */,
+			);
+			path = DSInfiniteImagePlayingView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -151,6 +164,7 @@
 			files = (
 				E25033301C84224D0083C97B /* ViewController.m in Sources */,
 				E250332D1C84224D0083C97B /* AppDelegate.m in Sources */,
+				E25033421C84227D0083C97B /* DSInfiniteImagePlayingView.m in Sources */,
 				E250332A1C84224D0083C97B /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

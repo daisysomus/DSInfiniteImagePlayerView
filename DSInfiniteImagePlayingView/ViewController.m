@@ -7,8 +7,13 @@
 //
 
 #import "ViewController.h"
+#import "DSInfiniteImagePlayingView.h"
+
+const NSInteger ImageCount = 3;
 
 @interface ViewController ()
+
+@property (weak, nonatomic) IBOutlet DSInfiniteImagePlayingView *infiniteScrollView;
 
 @end
 
@@ -17,6 +22,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    NSMutableArray *imagesArray = [NSMutableArray arrayWithCapacity:ImageCount];
+    for (NSInteger index = 0; index < ImageCount; index++) {
+        UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"image%d.jpg", index + 1]];
+        [imagesArray addObject:image];
+    }
+    [self.infiniteScrollView setPlayingImages:imagesArray];
+    
 }
 
 - (void)didReceiveMemoryWarning {
