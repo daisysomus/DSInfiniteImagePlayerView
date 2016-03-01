@@ -69,21 +69,20 @@
     NSInteger originaOffset = self.movingView.frame.origin.x;
     
     NSInteger gap = originaOffset - xPosition;
-    NSLog(@"scollview content offset : %ld gap: %ld", (long)xPosition, (long)gap);
+    
     if (gap == 0) {
         return;
     }
-    if (gap > width || gap < -width) {
+    if (gap >= width || gap <= -width) {
         if (gap > 0) {
             self.displayingIndex = [self prevNIndex:1];
         } else {
             self.displayingIndex = [self nextNIndex:1];
         }
         [self updateSubViews];
-        
-    } else if (gap > width/2) {
+    } else if (gap > width/2 || ([self isMoveToRight] && gap < 0 && gap > -width/2)) {
         [self moveRightToLeft];
-    } else if (gap < -width/2) {
+    } else if (gap < -width/2 || ([self isMoveToLeft] && gap > 0 && gap < width/2)) {
         [self moveLeftToRight];
     }
 }
@@ -154,7 +153,7 @@
 }
 - (void)moveRightToLeft
 {
-    if (self.leftView.image == self.displayingImages[[self prevNIndex:2]]) {
+    if ([self isMoveToLeft]) {
         return;
     }
     NSLog(@"move to left");
@@ -172,7 +171,7 @@
 
 - (void)moveLeftToRight
 {
-    if (self.rightView.image == self.displayingImages[[self nextNIndex:2]]) {
+    if ([self isMoveToRight]) {
         return;
     }
     NSLog(@"move to right");
@@ -195,6 +194,22 @@
     self.leftView.frame = CGRectMake(0, 0, width, height);
     self.middleView.frame = CGRectMake(width, 0, width, height);
     self.rightView.frame = CGRectMake(width * 2, 0, width, height);
+}
+
+- (BOOL)isMoveToRight
+{
+    if (self.rightView.image == self.displayingImages[[self nextNIndex:2]]) {
+        return YES;
+    }
+    return NO;
+}
+
+- (BOOL)isMoveToLeft
+{
+    if (self.leftView.image == self.displayingImages[[self prevNIndex:2]]) {
+        return YES;
+    }
+    return NO;
 }
 
 

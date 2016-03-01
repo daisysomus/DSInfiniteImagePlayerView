@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "DSInfiniteImagePlayingView.h"
 
-const NSInteger ImageCount = 3;
+const NSInteger ImageCount = 2;
 
 @interface ViewController ()
 
