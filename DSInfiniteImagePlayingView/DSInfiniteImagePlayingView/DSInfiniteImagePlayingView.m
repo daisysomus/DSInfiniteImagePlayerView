@@ -11,6 +11,7 @@
 @interface DSInfiniteImagePlayingView () <UIScrollViewDelegate>
 
 @property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, strong) UIPageControl *pageControl;
 
 @property (nonatomic, strong) UIImageView *leftView;
 @property (nonatomic, strong) UIImageView *middleView;
@@ -21,6 +22,8 @@
 
 @property (nonatomic, strong) NSArray *displayingImages;
 
+@property (nonatomic, strong) NSTimer *timer;
+
 @end
 
 @implementation DSInfiniteImagePlayingView
@@ -28,14 +31,14 @@
 - (id)initWithFrame:(CGRect)frame
 {
     if (self = [super initWithFrame:frame]) {
-
+        [self initView];
     }
     return self;
 }
 
 - (void)awakeFromNib
 {
-    
+    [self initView];
 }
 
 - (void)layoutSubviews
@@ -43,6 +46,7 @@
     [super layoutSubviews];
     if (!CGRectEqualToRect(self.bounds, self.scrollView.frame)) {
         self.scrollView.frame = self.bounds;
+        self.pageControl.frame = CGRectMake((self.frame.size.width - self.pageControl.frame.size.width)/2, self.frame.size.height - self.pageControl.frame.size.height, self.pageControl.frame.size.width, self.pageControl.frame.size.height);
         [self updateSubViewsFrame];
         self.scrollView.contentOffset = CGPointMake(self.frame.size.width, 0);
     }
@@ -59,6 +63,39 @@
     [self configView];
     [self createSubViews];
     [self updateSubViews];
+    
+    if (self.isAutoPlaying) {
+        [self startTimer];
+    }
+}
+
+- (void)setIsAutoPlaying:(BOOL)isAutoPlaying
+{
+    _isAutoPlaying = isAutoPlaying;
+    if (isAutoPlaying) {
+        if (!self.timer) {
+            [self startTimer];
+        }
+    } else {
+        [self.timer invalidate];
+        self.timer = nil;
+    }
+}
+
+- (void)setPageIndicatorTintColor:(UIColor *)pageIndicatorTintColor
+{
+    _pageIndicatorTintColor = pageIndicatorTintColor;
+    if (self.pageControl) {
+        self.pageControl.pageIndicatorTintColor = pageIndicatorTintColor;
+    }
+}
+
+- (void)setCurrentPageIndicatorTintColor:(UIColor *)currentPageIndicatorTintColor
+{
+    _currentPageIndicatorTintColor = currentPageIndicatorTintColor;
+    if (self.pageControl) {
+        self.pageControl.currentPageIndicatorTintColor = currentPageIndicatorTintColor;
+    }
 }
 
 #pragma mark - UIScrollViewDelegate
@@ -79,15 +116,20 @@
         } else {
             self.displayingIndex = [self nextNIndex:1];
         }
+        self.pageControl.currentPage = self.displayingIndex;
         [self updateSubViews];
-    } else if (gap > width/2 || ([self isMoveToRight] && gap < 0 && gap > -width/2)) {
+    } else if (gap > width/2 || (gap < 0 && gap > -width/2 && [self isMoveToRight])) {
         [self moveRightToLeft];
-    } else if (gap < -width/2 || ([self isMoveToLeft] && gap > 0 && gap < width/2)) {
+    } else if (gap < -width/2 || (gap > 0 && gap < width/2 && [self isMoveToLeft])) {
         [self moveLeftToRight];
     }
 }
 
 #pragma mark - private method
+- (void)initView
+{
+    self.playingInterval = 5;
+}
 - (void)configView
 {
     self.scrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
@@ -106,6 +148,13 @@
     } else {
         self.scrollView.contentSize = CGSizeMake(self.scrollView.frame.size.width * 3, self.scrollView.frame.size.height);
     }
+    
+    self.pageControl = [[UIPageControl alloc] init];
+    self.pageControl.numberOfPages = self.displayingImages.count;
+    self.pageControl.pageIndicatorTintColor = self.pageIndicatorTintColor;
+    self.pageControl.currentPageIndicatorTintColor = self.currentPageIndicatorTintColor;
+    [self.pageControl sizeToFit];
+    [self addSubview:self.pageControl];
 }
 
 - (void)createSubViews
@@ -156,16 +205,20 @@
     if ([self isMoveToLeft]) {
         return;
     }
-    NSLog(@"move to left");
     UIImageView *temp = self.rightView;
     self.rightView = self.middleView;
     self.middleView = self.leftView;
-    self.leftView = temp;
     
-    self.leftView.image = self.displayingImages[[self prevNIndex:2]];
+    self.leftView = [self createImageView];
+    self.leftView.frame = temp.frame;
+    NSInteger index = [self prevNIndex:2];
+    if (self.movingView == self.middleView) {
+        index = [self prevNIndex:1];
+    }
+    self.leftView.image = self.displayingImages[index];
+    [temp removeFromSuperview];
     
     [self updateSubViewsFrame];
-    self.movingView = self.rightView;
     self.scrollView.contentOffset = CGPointMake(self.scrollView.contentOffset.x + self.frame.size.width, 0);
 }
 
@@ -174,16 +227,24 @@
     if ([self isMoveToRight]) {
         return;
     }
-    NSLog(@"move to right");
     UIImageView *temp = self.leftView;
     self.leftView = self.middleView;
     self.middleView = self.rightView;
-    self.rightView = temp;
     
-    self.rightView.image = self.displayingImages[[self nextNIndex:2]];
+    // if UIImageView is not in the screen, it won't change its image immediately
+    // if you set the image property a new object
+    // so we need create a new UIImageView object
+    // remove old view form superview
+    self.rightView = [self createImageView];
+    self.rightView.frame = temp.frame;
+    NSInteger index = [self nextNIndex:2];
+    if (self.movingView == self.middleView) {
+        index = [self nextNIndex:1];
+    }
+    self.rightView.image = self.displayingImages[index];
+    [temp removeFromSuperview];
     
     [self updateSubViewsFrame];
-    self.movingView = self.leftView;
     self.scrollView.contentOffset = CGPointMake(self.scrollView.contentOffset.x - self.frame.size.width, 0);
 }
 
@@ -210,6 +271,24 @@
         return YES;
     }
     return NO;
+}
+
+- (void)startTimer
+{
+    [self.timer invalidate];
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:self.playingInterval
+                                                  target:self
+                                                selector:@selector(timerOut:)
+                                                userInfo:nil
+                                                 repeats:YES];
+}
+
+- (void)timerOut:(NSTimer *)timer
+{
+    [self moveLeftToRight];
+    [UIView animateWithDuration:0.5 animations:^{
+        self.scrollView.contentOffset = CGPointMake(self.scrollView.frame.size.width, 0);
+    }];
 }
 
 

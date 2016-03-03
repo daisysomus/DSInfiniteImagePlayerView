@@ -9,7 +9,7 @@
 #import "ViewController.h"
 #import "DSInfiniteImagePlayingView.h"
 
-const NSInteger ImageCount = 2;
+const NSInteger ImageCount = 8;
 
 @interface ViewController ()
 
@@ -24,10 +24,12 @@ const NSInteger ImageCount = 2;
     // Do any additional setup after loading the view, typically from a nib.
     NSMutableArray *imagesArray = [NSMutableArray arrayWithCapacity:ImageCount];
     for (NSInteger index = 0; index < ImageCount; index++) {
-        UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"image%d.jpg", index + 1]];
+        UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"image%ld.jpg", index % 3 + 1]];
         [imagesArray addObject:image];
     }
     [self.infiniteScrollView setPlayingImages:imagesArray];
+    self.infiniteScrollView.pageIndicatorTintColor = [UIColor greenColor];
+    self.infiniteScrollView.currentPageIndicatorTintColor = [UIColor yellowColor];
     
 }
 

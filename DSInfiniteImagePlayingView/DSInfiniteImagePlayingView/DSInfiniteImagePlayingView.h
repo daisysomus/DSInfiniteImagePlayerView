@@ -10,8 +10,14 @@
 
 @interface DSInfiniteImagePlayingView : UIView
 
-@property (nonatomic, assign) BOOL isAutoPlaying; // default is YESs
+@property (nonatomic, assign) BOOL isAutoPlaying; // default is YES
 
-- (void)setPlayingImages:(NSArray *)images;
+@property (nonatomic, assign) NSTimeInterval playingInterval; // default is 5 seconds
+
+@property(nullable, nonatomic,strong) UIColor *pageIndicatorTintColor;
+
+@property(nullable, nonatomic,strong) UIColor *currentPageIndicatorTintColor;
+
+- (void)setPlayingImages:(nullable NSArray *)images;
 
 @end
