@@ -7,13 +7,13 @@
 //
 
 #import "ViewController.h"
-#import "DSInfiniteImagePlayingView.h"
+#import "DSInfiniteImagePlayerView.h"
 
 const NSInteger ImageCount = 8;
 
 @interface ViewController ()
 
-@property (weak, nonatomic) IBOutlet DSInfiniteImagePlayingView *infiniteScrollView;
+@property (weak, nonatomic) IBOutlet DSInfiniteImagePlayerView *infiniteScrollView;
 
 @end
 

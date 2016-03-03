@@ -26,7 +26,7 @@
 
 @end
 
-@implementation DSInfiniteImagePlayingView
+@implementation DSInfiniteImagePlayerView
 
 - (id)initWithFrame:(CGRect)frame
 {
