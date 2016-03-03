@@ -1,14 +1,14 @@
 //
-//  DSInfiniteImagePlayingView.m
+//  DSInfiniteImagePlayerView,m
 //  DSInfiniteImagePlayingView
 //
 //  Created by liaojinhua on 16/2/29.
 //  Copyright © 2016年 Liao jinhua. All rights reserved.
 //
 
-#import "DSInfiniteImagePlayingView.h"
+#import "DSInfiniteImagePlayerView.h"
 
-@interface DSInfiniteImagePlayingView () <UIScrollViewDelegate>
+@interface DSInfiniteImagePlayerView () <UIScrollViewDelegate>
 
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIPageControl *pageControl;
@@ -64,15 +64,15 @@
     [self createSubViews];
     [self updateSubViews];
     
-    if (self.isAutoPlaying) {
+    if (self.autoPlaying) {
         [self startTimer];
     }
 }
 
-- (void)setIsAutoPlaying:(BOOL)isAutoPlaying
+- (void)setIsAutoPlaying:(BOOL)autoPlaying
 {
-    _isAutoPlaying = isAutoPlaying;
-    if (isAutoPlaying) {
+    _autoPlaying = autoPlaying;
+    if (autoPlaying) {
         if (!self.timer) {
             [self startTimer];
         }
