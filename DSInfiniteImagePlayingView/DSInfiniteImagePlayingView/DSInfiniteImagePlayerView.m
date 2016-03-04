@@ -48,7 +48,7 @@
     [super layoutSubviews];
     if (!CGRectEqualToRect(self.bounds, self.scrollView.frame)) {
         self.scrollView.frame = self.bounds;
-        self.pageControl.frame = CGRectMake((self.frame.size.width - self.pageControl.frame.size.width)/2, self.frame.size.height - self.pageControl.frame.size.height, self.pageControl.frame.size.width, self.pageControl.frame.size.height);
+        [self updatePageControlPosition];
         [self updateSubViewsFrame];
         self.scrollView.contentOffset = CGPointMake(self.frame.size.width, 0);
     }
@@ -63,6 +63,7 @@
     [self stopTimer];
     self.imageCount = [self.delegate numberOfImages:self];
     self.pageControl.numberOfPages = self.imageCount;
+    [self.pageControl sizeToFit];
     
     if (self.imageCount == 0) {
         return;
@@ -76,6 +77,7 @@
         self.pageControl.hidden = NO;
     }
     
+    [self updatePageControlPosition];
     [self updateSubViews];
     self.scrollView.contentOffset = CGPointMake(self.scrollView.frame.size.width, 0);
     [self startTimer];
@@ -92,6 +94,12 @@
         [self.timer invalidate];
         self.timer = nil;
     }
+}
+
+- (void)setPageControlPosition:(DSPageControlPosition)pageControlPosition
+{
+    _pageControlPosition = pageControlPosition;
+    [self updatePageControlPosition];
 }
 
 - (void)setPageIndicatorTintColor:(UIColor *)pageIndicatorTintColor
@@ -141,24 +149,22 @@
 - (void)configView
 {
     self.playingInterval = 5;
-    
-    self.scrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
-    self.scrollView.delegate = self;
-    [self addSubview:self.scrollView];
-    
-    self.scrollView.showsHorizontalScrollIndicator = NO;
-    self.scrollView.showsVerticalScrollIndicator = NO;
-    self.scrollView.pagingEnabled = YES;
-    
+    self.pageControlPosition = DSPageControlPositionBottonCenter;
     self.displayingIndex = 0;
     self.isAutoPlaying = YES;
     
+    self.scrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
+    self.scrollView.delegate = self;
+    self.scrollView.showsHorizontalScrollIndicator = NO;
+    self.scrollView.showsVerticalScrollIndicator = NO;
+    self.scrollView.pagingEnabled = YES;
     self.scrollView.contentSize = CGSizeMake(self.scrollView.frame.size.width * 3, self.scrollView.frame.size.height);
+    [self addSubview:self.scrollView];
     
     self.pageControl = [[UIPageControl alloc] init];
     self.pageControl.pageIndicatorTintColor = self.pageIndicatorTintColor;
     self.pageControl.currentPageIndicatorTintColor = self.currentPageIndicatorTintColor;
-    self.pageControl.numberOfPages = 1;
+    self.pageControl.numberOfPages = 8;
     [self.pageControl sizeToFit];
     [self addSubview:self.pageControl];
     
@@ -303,6 +309,43 @@
     [UIView animateWithDuration:0.5 animations:^{
         self.scrollView.contentOffset = CGPointMake(self.scrollView.frame.size.width, 0);
     }];
+}
+
+- (void)updatePageControlPosition
+{
+    if (!self.pageControl) {
+        return;
+    }
+    CGFloat x = 0;
+    CGFloat y = 0;
+    CGSize size = [self.pageControl sizeForNumberOfPages:self.imageCount];
+    switch (self.pageControlPosition) {
+        case DSPageControlPositionTopLeft:
+            x = 10;
+            break;
+        case DSPageControlPositionTopCenter:
+            x = (self.frame.size.width - size.width)/2;
+            break;
+        case DSPageControlPositionTopRight:
+            x = self.frame.size.width - size.width - 10;
+            break;
+        case DSPageControlPositionBottonLeft:
+            x = 10;
+            y = self.frame.size.height - size.height;
+            break;
+        case DSPageControlPositionBottonCenter:
+            x = (self.frame.size.width - size.width)/2;
+            y = self.frame.size.height - size.height;
+            break;
+        case DSPageControlPositionBottonRight:
+            x = self.frame.size.width - size.width - 10;
+            y = self.frame.size.height - size.height;
+            break;
+        default:
+            break;
+    }
+    
+    self.pageControl.frame = CGRectMake(x, y, size.width, size.height);
 }
 
 

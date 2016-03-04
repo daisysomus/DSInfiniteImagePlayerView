@@ -8,6 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
+typedef NS_ENUM(NSUInteger, DSPageControlPosition) {
+    DSPageControlPositionTopLeft,
+    DSPageControlPositionTopCenter,
+    DSPageControlPositionTopRight,
+    DSPageControlPositionBottonLeft,
+    DSPageControlPositionBottonCenter,  // Default
+    DSPageControlPositionBottonRight
+};
+
 @class DSInfiniteImagePlayerView;
 
 @protocol DSInfiniteImagePlayerViewDelegate <NSObject>
@@ -26,6 +35,8 @@
 @property (nullable, weak) id<DSInfiniteImagePlayerViewDelegate> delegate;
 
 @property (nonatomic, assign) BOOL autoPlaying; // default is YES
+
+@property (nonatomic, assign) DSPageControlPosition pageControlPosition;
 
 @property (nonatomic, assign) NSTimeInterval playingInterval; // default is 5 seconds
 

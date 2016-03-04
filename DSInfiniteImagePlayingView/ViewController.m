@@ -26,6 +26,7 @@ const NSInteger ImageCount = 8;
     self.infiniteScrollView.delegate = self;
     self.infiniteScrollView.pageIndicatorTintColor = [UIColor greenColor];
     self.infiniteScrollView.currentPageIndicatorTintColor = [UIColor yellowColor];
+    self.infiniteScrollView.pageControlPosition = DSPageControlPositionTopRight;
     [self.infiniteScrollView reloadData];
     
 }
