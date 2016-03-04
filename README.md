@@ -1,5 +1,5 @@
 # DSInfiniteImagePlayerView
-## FEatures
+## Features
 * Display multiple images
 * Infinite scrolll
 * Auto playing images with setting interval
