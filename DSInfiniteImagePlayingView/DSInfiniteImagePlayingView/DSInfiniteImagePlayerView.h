@@ -8,12 +8,22 @@
 
 #import <UIKit/UIKit.h>
 
+@class DSInfiniteImagePlayerView;
+
 @protocol DSInfiniteImagePlayerViewDelegate <NSObject>
 
+@required;
+- (NSUInteger)numberOfImages:(nonnull DSInfiniteImagePlayerView *)playerView;
+
+- (void)playerView:(nonnull DSInfiniteImagePlayerView *)playerView
+ imageForImageView:(nonnull UIImageView *)imageView
+           atIndex:(NSInteger)index;
 
 @end
 
 @interface DSInfiniteImagePlayerView : UIView
+
+@property (nullable, weak) id<DSInfiniteImagePlayerViewDelegate> delegate;
 
 @property (nonatomic, assign) BOOL autoPlaying; // default is YES
 
@@ -22,8 +32,6 @@
 @property(nullable, nonatomic,strong) UIColor *pageIndicatorTintColor;
 
 @property(nullable, nonatomic,strong) UIColor *currentPageIndicatorTintColor;
-
-- (void)setPlayingImages:(nullable NSArray *)images;
 
 - (void)reloadData;
 

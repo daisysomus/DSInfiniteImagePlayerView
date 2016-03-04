@@ -11,7 +11,7 @@
 
 const NSInteger ImageCount = 8;
 
-@interface ViewController ()
+@interface ViewController () <DSInfiniteImagePlayerViewDelegate>
 
 @property (weak, nonatomic) IBOutlet DSInfiniteImagePlayerView *infiniteScrollView;
 
@@ -22,20 +22,27 @@ const NSInteger ImageCount = 8;
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-    NSMutableArray *imagesArray = [NSMutableArray arrayWithCapacity:ImageCount];
-    for (NSInteger index = 0; index < ImageCount; index++) {
-        UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"image%ld.jpg", index % 3 + 1]];
-        [imagesArray addObject:image];
-    }
-    [self.infiniteScrollView setPlayingImages:imagesArray];
+
+    self.infiniteScrollView.delegate = self;
     self.infiniteScrollView.pageIndicatorTintColor = [UIColor greenColor];
     self.infiniteScrollView.currentPageIndicatorTintColor = [UIColor yellowColor];
+    [self.infiniteScrollView reloadData];
     
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (NSUInteger)numberOfImages:(DSInfiniteImagePlayerView *)playerView
+{
+    return ImageCount;
+}
+
+- (void)playerView:(DSInfiniteImagePlayerView *)playerView imageForImageView:(UIImageView *)imageView atIndex:(NSInteger)index
+{
+    imageView.image = [UIImage imageNamed:[NSString stringWithFormat:@"image%ld.jpg", index % 3 + 1]];
 }
 
 @end

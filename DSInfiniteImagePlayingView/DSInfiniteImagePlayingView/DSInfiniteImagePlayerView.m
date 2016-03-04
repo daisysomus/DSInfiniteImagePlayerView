@@ -16,11 +16,13 @@
 @property (nonatomic, strong) UIImageView *leftView;
 @property (nonatomic, strong) UIImageView *middleView;
 @property (nonatomic, strong) UIImageView *rightView;
-
 @property (nonatomic, strong) UIImageView *movingView;
+
+@property (nonatomic, assign) NSInteger imageCount;
 @property (nonatomic, assign) NSInteger displayingIndex;
 
-@property (nonatomic, strong) NSArray *displayingImages;
+@property (nonatomic, assign) BOOL isMoveToRight;
+@property (nonatomic, assign) BOOL isMoveToLeft;
 
 @property (nonatomic, strong) NSTimer *timer;
 
@@ -31,14 +33,14 @@
 - (id)initWithFrame:(CGRect)frame
 {
     if (self = [super initWithFrame:frame]) {
-        [self initView];
+        [self configView];
     }
     return self;
 }
 
 - (void)awakeFromNib
 {
-    [self initView];
+    [self configView];
 }
 
 - (void)layoutSubviews
@@ -52,21 +54,31 @@
     }
 }
 
-- (void)setPlayingImages:(NSArray *)images
+- (void)reloadData
 {
-    if (!images || images.count == 0) {
+    if (!self.delegate) {
         return;
     }
     
-    self.displayingImages = images;
+    [self stopTimer];
+    self.imageCount = [self.delegate numberOfImages:self];
+    self.pageControl.numberOfPages = self.imageCount;
     
-    [self configView];
-    [self createSubViews];
-    [self updateSubViews];
-    
-    if (self.autoPlaying) {
-        [self startTimer];
+    if (self.imageCount == 0) {
+        return;
     }
+    
+    if (self.imageCount == 1) {
+        self.scrollView.scrollEnabled = NO;
+        self.pageControl.hidden = YES;
+    } else {
+        self.scrollView.scrollEnabled = YES;
+        self.pageControl.hidden = NO;
+    }
+    
+    [self updateSubViews];
+    self.scrollView.contentOffset = CGPointMake(self.scrollView.frame.size.width, 0);
+    [self startTimer];
 }
 
 - (void)setIsAutoPlaying:(BOOL)autoPlaying
@@ -126,12 +138,10 @@
 }
 
 #pragma mark - private method
-- (void)initView
-{
-    self.playingInterval = 5;
-}
 - (void)configView
 {
+    self.playingInterval = 5;
+    
     self.scrollView = [[UIScrollView alloc] initWithFrame:self.bounds];
     self.scrollView.delegate = self;
     [self addSubview:self.scrollView];
@@ -143,18 +153,16 @@
     self.displayingIndex = 0;
     self.isAutoPlaying = YES;
     
-    if (self.displayingImages.count == 1) {
-        self.scrollView.contentSize = CGSizeMake(self.scrollView.frame.size.width, self.scrollView.frame.size.height);
-    } else {
-        self.scrollView.contentSize = CGSizeMake(self.scrollView.frame.size.width * 3, self.scrollView.frame.size.height);
-    }
+    self.scrollView.contentSize = CGSizeMake(self.scrollView.frame.size.width * 3, self.scrollView.frame.size.height);
     
     self.pageControl = [[UIPageControl alloc] init];
-    self.pageControl.numberOfPages = self.displayingImages.count;
     self.pageControl.pageIndicatorTintColor = self.pageIndicatorTintColor;
     self.pageControl.currentPageIndicatorTintColor = self.currentPageIndicatorTintColor;
+    self.pageControl.numberOfPages = 1;
     [self.pageControl sizeToFit];
     [self addSubview:self.pageControl];
+    
+    [self createSubViews];
 }
 
 - (void)createSubViews
@@ -174,12 +182,18 @@
 
 - (void)updateSubViews
 {
-    self.middleView.image = self.displayingImages[self.displayingIndex];
-    self.leftView.image = self.displayingImages[[self prevNIndex:1]];
-    self.rightView.image = self.displayingImages[[self nextNIndex:1]];
+    if (!self.delegate) {
+        return;
+    }
+    [self.delegate playerView:self imageForImageView:self.middleView atIndex:self.displayingIndex];
+    [self.delegate playerView:self imageForImageView:self.leftView atIndex:[self prevNIndex:1]];
+    [self.delegate playerView:self imageForImageView:self.rightView atIndex:[self nextNIndex:1]];
     
     [self updateSubViewsFrame];
     self.movingView = self.middleView;
+    
+    self.isMoveToRight = NO;
+    self.isMoveToLeft = NO;
 }
 
 - (UIImageView *)createImageView
@@ -191,20 +205,28 @@
 
 - (NSInteger)nextNIndex:(NSInteger)offset
 {
+    if (self.imageCount == 0) {
+        return 0;
+    }
     NSInteger index = self.displayingIndex + offset;
-    return index % self.displayingImages.count;
+    return index % self.imageCount;
 }
 
 - (NSInteger)prevNIndex:(NSInteger)offset
 {
+    if (self.imageCount == 0) {
+        return 0;
+    }
     NSInteger index = self.displayingIndex - offset;
-    return (index + self.displayingImages.count) % self.displayingImages.count;
+    return (index + self.imageCount) % self.imageCount;
 }
 - (void)moveRightToLeft
 {
-    if ([self isMoveToLeft]) {
+    if (self.isMoveToLeft) {
         return;
     }
+    self.isMoveToLeft = YES;
+    self.isMoveToRight = NO;
     UIImageView *temp = self.rightView;
     self.rightView = self.middleView;
     self.middleView = self.leftView;
@@ -215,7 +237,7 @@
     if (self.movingView == self.middleView) {
         index = [self prevNIndex:1];
     }
-    self.leftView.image = self.displayingImages[index];
+    [self.delegate playerView:self imageForImageView:self.leftView atIndex:index];
     [temp removeFromSuperview];
     
     [self updateSubViewsFrame];
@@ -224,9 +246,11 @@
 
 - (void)moveLeftToRight
 {
-    if ([self isMoveToRight]) {
+    if (self.isMoveToRight) {
         return;
     }
+    self.isMoveToRight = YES;
+    self.isMoveToLeft = NO;
     UIImageView *temp = self.leftView;
     self.leftView = self.middleView;
     self.middleView = self.rightView;
@@ -241,7 +265,7 @@
     if (self.movingView == self.middleView) {
         index = [self nextNIndex:1];
     }
-    self.rightView.image = self.displayingImages[index];
+    [self.delegate playerView:self imageForImageView:self.rightView atIndex:index];
     [temp removeFromSuperview];
     
     [self updateSubViewsFrame];
@@ -257,22 +281,6 @@
     self.rightView.frame = CGRectMake(width * 2, 0, width, height);
 }
 
-- (BOOL)isMoveToRight
-{
-    if (self.rightView.image == self.displayingImages[[self nextNIndex:2]]) {
-        return YES;
-    }
-    return NO;
-}
-
-- (BOOL)isMoveToLeft
-{
-    if (self.leftView.image == self.displayingImages[[self prevNIndex:2]]) {
-        return YES;
-    }
-    return NO;
-}
-
 - (void)startTimer
 {
     [self.timer invalidate];
@@ -281,6 +289,12 @@
                                                 selector:@selector(timerOut:)
                                                 userInfo:nil
                                                  repeats:YES];
+}
+
+- (void)stopTimer
+{
+    [self.timer invalidate];
+    self.timer = nil;
 }
 
 - (void)timerOut:(NSTimer *)timer
