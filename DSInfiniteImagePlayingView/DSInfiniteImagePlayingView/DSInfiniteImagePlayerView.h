@@ -32,7 +32,7 @@ typedef NS_ENUM(NSUInteger, DSPageControlPosition) {
 
 @interface DSInfiniteImagePlayerView : UIView
 
-@property (nullable, weak) id<DSInfiniteImagePlayerViewDelegate> delegate;
+@property (nullable, nonatomic, weak) id<DSInfiniteImagePlayerViewDelegate> delegate;
 
 @property (nonatomic, assign) BOOL autoPlaying; // default is YES
 
