@@ -5,7 +5,7 @@
 * Auto playing images with setting interval
 * Customize page control position
 
-## How to use
+## Installation
 
 		pod "DSInfiniteImagePlayerView"
 		
@@ -13,7 +13,7 @@ or
 
 		copy the source file to your project
 		
-## Demo code
+## How to use
 	
 		self.infiniteScrollView = [[DSInfiniteImagePlayerView alloc] initWithFrame:CGRectMake(0, 0, 200, 100)];
 		self.infiniteScrollView.delegate = self;
